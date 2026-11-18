@@ -10,6 +10,8 @@ Steps:
   3. get_models()         -> the 3 algorithms we compare
   4. train_and_evaluate() -> train, test, and return accuracy / reports
 """
+from pathlib import Path
+
 import pandas as pd
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
@@ -20,7 +22,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
 
-DATA_PATH = "data/student_data.csv"
+BASE_DIR = Path(__file__).resolve().parent          # folder where this file lives
+DATA_PATH = BASE_DIR / "data" / "student_data.csv"
 TARGET = "performance"
 LABELS = ["Low", "Medium", "High"]          # order used in reports / charts
 
@@ -30,7 +33,12 @@ CATEGORICAL = ["gender", "parental_education", "internet_access", "extracurricul
 
 
 def load_data(path=DATA_PATH):
-    return pd.read_csv(path)
+    """Reads the CSV. If the file is missing (e.g. 'data' folder not uploaded to GitHub),
+    the same dataset is regenerated automatically so the app never crashes."""
+    if Path(path).exists():
+        return pd.read_csv(path)
+    from generate_dataset import make_dataframe
+    return make_dataframe()
 
 
 def build_preprocessor():
